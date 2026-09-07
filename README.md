@@ -1,5 +1,9 @@
 # To-Do
 
+### 👉 [Open the app](https://supriyarajeev.github.io/todo-app/)
+
+**Live site:** https://supriyarajeev.github.io/todo-app/
+
 A simple, fast, responsive personal task manager that runs entirely in the browser. No backend, no accounts, no build step — just three static files you can host on GitHub Pages.
 
 > Stay organized. Get things done.
@@ -95,7 +99,7 @@ If `index.html` is not at the repository root (for example the repo contains thi
 https://<your-username>.github.io/<your-repo>/
 ```
 
-For example, `https://janedoe.github.io/todo-app/`. If you name the repo `<your-username>.github.io`, the site is served at `https://<your-username>.github.io/` instead.
+This project is deployed at **https://supriyarajeev.github.io/todo-app/**. If you name the repo `<your-username>.github.io`, the site is served at `https://<your-username>.github.io/` instead.
 
 ## Project structure
 
