@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do — Stay organized</title>
+  <meta name="description" content="A simple, fast to-do list that stores tasks in your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>" />
+</head>
+<body>
+  <a class="skip-link" href="#task-list">Skip to task list</a>
+
+  <header class="app-header">
+    <div class="wrap header-inner">
+      <div>
+        <h1>To-Do</h1>
+        <p class="tagline">Stay organized. Get things done.</p>
+      </div>
+      <button id="theme-toggle" class="btn btn-ghost" type="button" aria-label="Toggle dark mode">🌗</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Search + add row -->
+    <section class="toolbar" aria-label="Search and add tasks">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input id="search" type="search" placeholder="Search tasks..." aria-label="Search tasks by title or description" />
+      </div>
+      <button id="add-task-btn" class="btn btn-primary" type="button">+ Add Task</button>
+    </section>
+
+    <!-- View tabs -->
+    <nav class="tabs" aria-label="Task views">
+      <button class="tab is-active" type="button" data-view="all" aria-pressed="true">All <span class="count" data-count="all">0</span></button>
+      <button class="tab" type="button" data-view="active" aria-pressed="false">Active <span class="count" data-count="active">0</span></button>
+      <button class="tab" type="button" data-view="completed" aria-pressed="false">Completed <span class="count" data-count="completed">0</span></button>
+      <button class="tab" type="button" data-view="archived" aria-pressed="false">Archived <span class="count" data-count="archived">0</span></button>
+    </nav>
+
+    <!-- Filters -->
+    <section class="filters" aria-label="Filters">
+      <label class="field">
+        <span>Priority</span>
+        <select id="filter-priority">
+          <option value="all">Any</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Category</span>
+        <select id="filter-category">
+          <option value="all">Any</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Due</span>
+        <select id="filter-due">
+          <option value="all">Any</option>
+          <option value="overdue">Overdue</option>
+          <option value="today">Today</option>
+          <option value="week">Next 7 days</option>
+          <option value="none">No due date</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Sort</span>
+        <select id="sort-by">
+          <option value="created-desc">Newest first</option>
+          <option value="created-asc">Oldest first</option>
+          <option value="due-asc">Due date</option>
+          <option value="priority-desc">Priority</option>
+          <option value="title-asc">Title A–Z</option>
+        </select>
+      </label>
+
+      <button id="clear-filters" class="btn btn-ghost" type="button">Reset filters</button>
+    </section>
+
+    <!-- Task list -->
+    <ul id="task-list" class="task-list" aria-live="polite" aria-label="Tasks"></ul>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty" hidden>
+      <div class="empty-emoji" aria-hidden="true">🗒️</div>
+      <h2 id="empty-title">Nothing here yet</h2>
+      <p id="empty-text">Add your first task to get started.</p>
+    </div>
+  </main>
+
+  <footer class="wrap app-footer">
+    <p>Tasks are saved in this browser only (localStorage).</p>
+  </footer>
+
+  <!-- Add / Edit modal -->
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Add Task</h2>
+      <form id="task-form" novalidate>
+        <label class="field">
+          <span>Title <span class="req" aria-hidden="true">*</span></span>
+          <input id="f-title" name="title" type="text" required maxlength="200"
+                 aria-required="true" aria-describedby="title-error" placeholder="e.g. Finish Product School course" />
+          <small id="title-error" class="error" role="alert" hidden>Please enter a task title.</small>
+        </label>
+
+        <label class="field">
+          <span>Description</span>
+          <textarea id="f-description" name="description" rows="3" maxlength="1000"
+                    placeholder="Optional notes..."></textarea>
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span>Due date</span>
+            <input id="f-dueDate" name="dueDate" type="date" />
+          </label>
+
+          <label class="field">
+            <span>Priority</span>
+            <select id="f-priority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Category</span>
+          <input id="f-category" name="category" type="text" maxlength="40"
+                 list="category-list" placeholder="e.g. Learning" />
+          <datalist id="category-list"></datalist>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" id="modal-save" class="btn btn-primary">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm dialog -->
+  <div id="confirm-overlay" class="modal-overlay" hidden>
+    <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+      <h2 id="confirm-title">Delete task?</h2>
+      <p id="confirm-text">Are you sure you want to permanently delete this task? This cannot be undone.</p>
+      <div class="modal-actions">
+        <button type="button" id="confirm-cancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="confirm-ok" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
