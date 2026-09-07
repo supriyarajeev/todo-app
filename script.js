@@ -90,7 +90,7 @@ const el = {
   emptyTitle: document.getElementById('empty-title'),
   emptyText: document.getElementById('empty-text'),
   search: document.getElementById('search'),
-  tabs: document.querySelectorAll('.tab'),
+  tabs: document.querySelectorAll('.view'),
   filterPriority: document.getElementById('filter-priority'),
   filterCategory: document.getElementById('filter-category'),
   filterDue: document.getElementById('filter-due'),
@@ -350,7 +350,7 @@ function setEmptyMessage() {
   }
 }
 
-/** Build one task card element. Uses DOM APIs so user text is never HTML. */
+/** Build one ledger row. Uses DOM APIs so user text is never HTML. */
 function buildTaskCard(task) {
   const overdue = isOverdue(task);
 
@@ -360,7 +360,10 @@ function buildTaskCard(task) {
   if (task.completed) li.classList.add('is-completed');
   if (overdue) li.classList.add('is-overdue');
 
-  // Completion checkbox
+  /* --- column 1: checkbox + title + notes + chips --- */
+  const main = document.createElement('div');
+  main.className = 'task-main';
+
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.className = 'task-check';
@@ -369,7 +372,6 @@ function buildTaskCard(task) {
     (task.completed ? 'Mark as not completed: ' : 'Mark as completed: ') + task.title);
   checkbox.addEventListener('change', () => toggleComplete(task.id));
 
-  // Body: title, description, meta chips
   const body = document.createElement('div');
   body.className = 'task-body';
 
@@ -387,14 +389,29 @@ function buildTaskCard(task) {
 
   const meta = document.createElement('div');
   meta.className = 'meta';
-  if (task.dueDate) meta.appendChild(chip('Due ' + formatDate(task.dueDate)));
-  if (overdue) meta.appendChild(chip('Overdue', 'chip-overdue'));
   meta.appendChild(chip(capitalize(task.priority), 'chip-' + task.priority));
-  if (task.category) meta.appendChild(chip(task.category));
-  if (task.archived) meta.appendChild(chip('Archived'));
+  if (task.category) meta.appendChild(chip(task.category, 'chip-plain'));
+  if (task.archived) meta.appendChild(chip('Archived', 'chip-plain'));
   body.appendChild(meta);
 
-  // Actions
+  main.append(checkbox, body);
+
+  /* --- column 2: due date, absolute above relative --- */
+  const due = document.createElement('div');
+  due.className = 'task-due';
+  if (task.dueDate) {
+    due.textContent = formatDate(task.dueDate);
+    const rel = document.createElement('span');
+    rel.className = 'rel';
+    rel.textContent = relativeDue(task.dueDate);
+    due.appendChild(rel);
+    if (overdue) due.classList.add('is-overdue');
+  } else {
+    due.classList.add('is-none');
+    due.textContent = '—';
+  }
+
+  /* --- column 3: actions --- */
   const actions = document.createElement('div');
   actions.className = 'task-actions';
   actions.appendChild(actionButton('Edit', 'Edit task: ' + task.title, () => openTaskModal(task.id)));
@@ -409,7 +426,7 @@ function buildTaskCard(task) {
   del.classList.add('btn-danger');
   actions.appendChild(del);
 
-  li.append(checkbox, body, actions);
+  li.append(main, due, actions);
   return li;
 }
 
@@ -437,6 +454,21 @@ function formatDate(str) {
   // Include the year when it isn't the current year.
   if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
   return d.toLocaleDateString(undefined, opts);
+}
+
+/** Human phrasing for how far off a due date is — how people actually
+ *  think about deadlines ("in 9 days" reads faster than "Sep 15"). */
+function relativeDue(str) {
+  const due = parseDate(str);
+  if (!due) return '';
+  const days = Math.round((due - startOfToday()) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return 'tomorrow';
+  if (days === -1) return '1 day ago';
+  if (days < 0) return Math.abs(days) + ' days ago';
+  if (days < 30) return 'in ' + days + ' days';
+  const months = Math.round(days / 30);
+  return 'in ' + months + (months === 1 ? ' month' : ' months');
 }
 
 function capitalize(s) {

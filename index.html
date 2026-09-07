@@ -5,100 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>To-Do — Stay organized</title>
   <meta name="description" content="A simple, fast to-do list that stores tasks in your browser." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>" />
 </head>
 <body>
   <a class="skip-link" href="#task-list">Skip to task list</a>
 
-  <header class="app-header">
-    <div class="wrap header-inner">
-      <div>
-        <h1>To-Do</h1>
-        <p class="tagline">Stay organized. Get things done.</p>
+  <div class="shell">
+
+    <!-- ============ Left rail ============ -->
+    <aside class="rail">
+      <div class="rail-top">
+        <div class="brand">
+          <h1 class="wordmark">To&#8209;Do</h1>
+          <p class="tagline">Stay organized.<br />Get things done.</p>
+        </div>
+        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
-      <button id="theme-toggle" class="btn btn-ghost" type="button" aria-label="Toggle dark mode">🌗</button>
-    </div>
-  </header>
 
-  <main class="wrap">
-    <!-- Search + add row -->
-    <section class="toolbar" aria-label="Search and add tasks">
-      <div class="search-box">
-        <span class="search-icon" aria-hidden="true">🔍</span>
-        <input id="search" type="search" placeholder="Search tasks..." aria-label="Search tasks by title or description" />
+      <nav class="views" aria-label="Task views">
+        <button class="view is-active" type="button" data-view="all" aria-pressed="true">
+          <span class="view-name">All</span>
+          <span class="view-count" data-count="all">0</span>
+        </button>
+        <button class="view" type="button" data-view="active" aria-pressed="false">
+          <span class="view-name">Active</span>
+          <span class="view-count" data-count="active">0</span>
+        </button>
+        <button class="view" type="button" data-view="completed" aria-pressed="false">
+          <span class="view-name">Completed</span>
+          <span class="view-count" data-count="completed">0</span>
+        </button>
+        <button class="view" type="button" data-view="archived" aria-pressed="false">
+          <span class="view-name">Archived</span>
+          <span class="view-count" data-count="archived">0</span>
+        </button>
+      </nav>
+
+      <section class="refine" aria-label="Filters">
+        <h2 class="rail-label">Refine</h2>
+        <div class="refine-grid">
+          <label class="field">
+            <span>Priority</span>
+            <select id="filter-priority">
+              <option value="all">Any</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Category</span>
+            <select id="filter-category"><option value="all">Any</option></select>
+          </label>
+          <label class="field">
+            <span>Due</span>
+            <select id="filter-due">
+              <option value="all">Any</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Today</option>
+              <option value="week">Next 7 days</option>
+              <option value="none">No due date</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Sort</span>
+            <select id="sort-by">
+              <option value="created-desc">Newest first</option>
+              <option value="created-asc">Oldest first</option>
+              <option value="due-asc">Due date</option>
+              <option value="priority-desc">Priority</option>
+              <option value="title-asc">Title A–Z</option>
+            </select>
+          </label>
+        </div>
+        <button id="clear-filters" class="link-btn" type="button">Reset filters</button>
+      </section>
+
+      <p class="rail-foot">Saved in this browser only.</p>
+    </aside>
+
+    <!-- ============ Main ============ -->
+    <main class="main">
+      <div class="commandbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m16 16 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input id="search" type="search" placeholder="Search tasks..." aria-label="Search tasks by title or description" />
+        </div>
+        <button id="add-task-btn" class="btn btn-primary" type="button">
+          <span aria-hidden="true">+</span> Add Task
+        </button>
       </div>
-      <button id="add-task-btn" class="btn btn-primary" type="button">+ Add Task</button>
-    </section>
 
-    <!-- View tabs -->
-    <nav class="tabs" aria-label="Task views">
-      <button class="tab is-active" type="button" data-view="all" aria-pressed="true">All <span class="count" data-count="all">0</span></button>
-      <button class="tab" type="button" data-view="active" aria-pressed="false">Active <span class="count" data-count="active">0</span></button>
-      <button class="tab" type="button" data-view="completed" aria-pressed="false">Completed <span class="count" data-count="completed">0</span></button>
-      <button class="tab" type="button" data-view="archived" aria-pressed="false">Archived <span class="count" data-count="archived">0</span></button>
-    </nav>
+      <div class="ledger">
+        <div class="ledger-head" aria-hidden="true">
+          <span class="lh-task">Task</span>
+          <span class="lh-due">Due</span>
+          <span class="lh-actions"></span>
+        </div>
 
-    <!-- Filters -->
-    <section class="filters" aria-label="Filters">
-      <label class="field">
-        <span>Priority</span>
-        <select id="filter-priority">
-          <option value="all">Any</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-      </label>
+        <ul id="task-list" class="task-list" aria-live="polite" aria-label="Tasks"></ul>
 
-      <label class="field">
-        <span>Category</span>
-        <select id="filter-category">
-          <option value="all">Any</option>
-        </select>
-      </label>
+        <div id="empty-state" class="empty" hidden>
+          <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true" class="empty-mark">
+            <path d="M10 6h28v36H10z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M17 17h14M17 24h14M17 31h8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <h2 id="empty-title">Nothing here yet</h2>
+          <p id="empty-text">Add your first task to get started.</p>
+        </div>
+      </div>
+    </main>
+  </div>
 
-      <label class="field">
-        <span>Due</span>
-        <select id="filter-due">
-          <option value="all">Any</option>
-          <option value="overdue">Overdue</option>
-          <option value="today">Today</option>
-          <option value="week">Next 7 days</option>
-          <option value="none">No due date</option>
-        </select>
-      </label>
-
-      <label class="field">
-        <span>Sort</span>
-        <select id="sort-by">
-          <option value="created-desc">Newest first</option>
-          <option value="created-asc">Oldest first</option>
-          <option value="due-asc">Due date</option>
-          <option value="priority-desc">Priority</option>
-          <option value="title-asc">Title A–Z</option>
-        </select>
-      </label>
-
-      <button id="clear-filters" class="btn btn-ghost" type="button">Reset filters</button>
-    </section>
-
-    <!-- Task list -->
-    <ul id="task-list" class="task-list" aria-live="polite" aria-label="Tasks"></ul>
-
-    <!-- Empty state -->
-    <div id="empty-state" class="empty" hidden>
-      <div class="empty-emoji" aria-hidden="true">🗒️</div>
-      <h2 id="empty-title">Nothing here yet</h2>
-      <p id="empty-text">Add your first task to get started.</p>
-    </div>
-  </main>
-
-  <footer class="wrap app-footer">
-    <p>Tasks are saved in this browser only (localStorage).</p>
-  </footer>
-
-  <!-- Add / Edit modal -->
+  <!-- ============ Add / Edit dialog ============ -->
   <div id="modal-overlay" class="modal-overlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <h2 id="modal-title">Add Task</h2>
@@ -112,8 +142,7 @@
 
         <label class="field">
           <span>Description</span>
-          <textarea id="f-description" name="description" rows="3" maxlength="1000"
-                    placeholder="Optional notes..."></textarea>
+          <textarea id="f-description" name="description" rows="3" maxlength="1000" placeholder="Optional notes..."></textarea>
         </label>
 
         <div class="row">
@@ -121,7 +150,6 @@
             <span>Due date</span>
             <input id="f-dueDate" name="dueDate" type="date" />
           </label>
-
           <label class="field">
             <span>Priority</span>
             <select id="f-priority" name="priority">
@@ -134,26 +162,25 @@
 
         <label class="field">
           <span>Category</span>
-          <input id="f-category" name="category" type="text" maxlength="40"
-                 list="category-list" placeholder="e.g. Learning" />
+          <input id="f-category" name="category" type="text" maxlength="40" list="category-list" placeholder="e.g. Learning" />
           <datalist id="category-list"></datalist>
         </label>
 
         <div class="modal-actions">
-          <button type="button" id="modal-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="button" id="modal-cancel" class="btn">Cancel</button>
           <button type="submit" id="modal-save" class="btn btn-primary">Save Task</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Confirm dialog -->
+  <!-- ============ Confirm dialog ============ -->
   <div id="confirm-overlay" class="modal-overlay" hidden>
     <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
       <h2 id="confirm-title">Delete task?</h2>
-      <p id="confirm-text">Are you sure you want to permanently delete this task? This cannot be undone.</p>
+      <p id="confirm-text">This permanently removes the task. Archiving keeps it instead, and can be undone.</p>
       <div class="modal-actions">
-        <button type="button" id="confirm-cancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="confirm-cancel" class="btn">Cancel</button>
         <button type="button" id="confirm-ok" class="btn btn-danger">Delete</button>
       </div>
     </div>
